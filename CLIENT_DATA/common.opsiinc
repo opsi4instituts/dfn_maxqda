@@ -1,0 +1,93 @@
+; This sourcecode published under the Terms of the General Public License.
+; Written by Eric Esser, Wissenschaftszentrum Berlin, eric.esser@wzb.eu.
+; Inspired by uib gmbh (www.uib.de), Thomas Besser (KIT), Detlef Krummel (GEI) and Tobias Friede (Fraunhofer)
+
+setloglevel = 6
+;  Log Errors in Logfile but don't abort:
+ExitOnError=false
+; Show syntax errors in the script:
+ScriptErrorMessages=on
+; Dont trace step by step through the script:
+TraceMode=off
+; let started programs run in front of the winst window
+StayOnTop=false
+
+requiredWinstVersion >= "4.11.5.0"
+
+;==========================================================================================================
+; Includes
+include_insert "insert_check_exit_code.opsiinc"
+include_insert "insert_get_licensekey.opsiinc"
+include_append "section_linkfolder.opsiinc"
+
+;==========================================================================================================
+; Variables 
+
+DefVar $LogDir$
+DefVar $ProductId$ 
+DefVar $PrettyName$
+DefVar $MinimumSpace$
+DefVar $InstallDir$
+DefVar $KindOfLicense$ 
+DefVar $VersionIdentifier$
+DefVar $SetupFile$	
+DefVar $DesktopIconName$
+DefVar $Property_DesktopIcon$
+DefVar $ProgramVersion$	
+DefVar $Exe$	
+DefVar $PathToExe$
+DefVar $remove_old_versions$
+
+;----------------------------------------------------------------------------------------------
+; USUALLY FOR AN PROGRAM UPDATE THIS IS THE ONLY PLACE WHERE VALUES OUGHT TO BE CHANGED, EXCEPT PUTTING THE OLD MSI-ID TO DELSUB
+; Setting common variables
+
+Set $ProductId$     			= "dfn_maxqda"
+Set $MinimumSpace$  			= "750 MB"
+Set $PrettyName$					= "MAXQDA 12"
+Set $VersionIdentifier$		= "MAXQDA12"
+Set $InstallDir$    			= "%ProgramFiles32Dir%\" + $VersionIdentifier$
+Set $Exe$									= $VersionIdentifier$ + ".exe"
+Set $SetupFile$						= $VersionIdentifier$ + "_Setup.msi"		
+Set $PathToExe$						= $InstallDir$ + "\" + $Exe$
+Set $remove_old_versions$ = GetProductProperty("remove-old-versions", "false")
+
+; There are two more variables to set which are not here, but in setup.opsiscript ($SetupFile$) and uninstall.opsiscript ($UninstallSearchString$)
+;----------------------------------------------------------------------------------------------
+; Further common values. After an update, these should stay as they are.
+
+Set $ProgramVersion$       = strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
+Set $LogDir$               = "%SystemDrive%\tmp"
+Set $Property_DesktopIcon$ = GetProductProperty("desktopicon", "true")
+
+;==========================================================================================================
+; Program logic
+
+comment "Show product picture"
+ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$
+
+; Kill running task
+Killtask $Exe$
+
+Set $KindOfLicense$ = GetProductProperty("kind-of-license" , "testversion" )
+Switch $KindOfLicense$
+    Case "testversion"
+        Set $LicenseKey$ = ""
+    EndCase
+    Case "opsi-property"
+        Set $LicenseKey$ = GetProductProperty("licensename", "none" )
+        if (($LicenseKey$ = "") or ($LicenseKey$ = "none"))
+          LogError "No license name found in OPSI, though kind-of-license property set to opsi-property. Please enter valid license name in OPSI or change the kind of licensing."
+          isFatalError "No license name found in OPSI, though kind-of-license property set to opsi-property"
+        endif
+    EndCase
+    Case "licensepool" 
+        Set $LicensePool$ = GetProductProperty("licensepoolname" , "p_" + $ProductId$ )
+        if ($LicensePool$ = "") 
+          LogError "No license pool found in OPSI, though kind-of-license property set to opsi-property. Please enter valid license pool name in OPSI or change the kind of licensing."
+          isFatalError "No license pool found in OPSI, though kind-of-license property set to opsi-property"
+        endif                            
+        Sub_get_licensekey 
+    EndCase
+EndSwitch
+

@@ -1,0 +1,95 @@
+[Package]
+version: 1
+depends: 
+incremental: False
+
+[Product]
+type: localboot
+id: dfn_maxqda
+name: MAXQDA
+description: MAXQDA is a software program designed for computer-assisted qualitative and mixed methods data, text and multimedia analysis in academic, scientific, and business institutions.
+advice: The installation process closes any open instances of the program. If an installation was activated with a serial number, please deactivate the license in the programm before deinstalling it. The license won't be deactivated with the uninstallation and you'd have to contact MAXQDA support for retrieving it.
+version: 12.2.1
+priority: 0
+licenseRequired: True
+productClasses: 
+setupScript: setup.opsiscript
+uninstallScript: uninstall.opsiscript
+updateScript: 
+alwaysScript: 
+onceScript: 
+customScript: 
+userLoginScript: 
+
+[ProductProperty]
+type: bool
+name: desktopicon
+description: Generate or delete desktop icon.
+default: True
+
+[ProductProperty]
+type: unicode
+name: custom-post-install
+multivalue: False
+editable: False
+description: Define filename for include script in custom directory after installation
+values: ["none", "post-install.opsiinc"]
+default: ["none"]
+
+[ProductProperty]
+type: unicode
+name: custom-post-deinstall
+multivalue: False
+editable: False
+description: Define filename for include script in custom directory after deinstallation
+values: ["none", "post-deinstall.opsiinc"]
+default: ["none"]
+
+[ProductProperty]
+type: unicode
+name: kind-of-license
+multivalue: False
+editable: False
+description: Defines the kind of license: "opsi-property" takes the license name from the property "licensename", "licensepool" uses the license name delivered by the license module of OPSI. The delivering license pool can be specified in the property "licensepoolname". "ini-file-in-custom-folder" uses the Config.ini file placed in the custom folder of the package and "testversion" installs MAXQDA as test version.
+values: ["ini-file-in-custom-folder", "licensepool", "opsi-property", "testversion"]
+default: ["testversion"]
+
+[ProductProperty]
+type: unicode
+name: licensename
+multivalue: False
+editable: True
+description: The license name for your MAXQDA installation. Only needed if the property "kind-of-license" is set to "licensename".
+values: ["none"]
+default: ["none"]
+
+[ProductProperty]
+type: unicode
+name: licensepoolname
+multivalue: False
+editable: True
+description: The license pool name for OPSI license module. Only needed if the property "kind-of-license" is set to "licensepool".
+values: [""]
+default: [""]
+
+[ProductProperty]
+type: unicode
+name: licenseserver
+multivalue: False
+editable: True
+description: The fqdn of the license server or the IP of it. Only needed if the property "kind-of-license" is set to "opsi-property" or "licensepool".
+values: [""]
+default: [""]
+
+[ProductProperty]
+type: bool
+name: remove-old-versions
+description: Remove earlier installed versions of Endnote on this machine.
+default: False
+
+[Changelog]
+maxqda (12.0.3-1) testing; urgency=low
+
+  * Initial package
+
+ -- Eric Esser <esser@wzb.eu>  Wed, 07 Dez 2016 17:34:07 +0000

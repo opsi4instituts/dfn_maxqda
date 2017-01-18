@@ -1,0 +1,44 @@
+; This sourcecode published under the Terms of the General Public License.
+; Written by Eric Esser, Wissenschaftszentrum Berlin, eric.esser@wzb.eu.
+; Inspired by uib gmbh (www.uib.de), Thomas Besser (KIT), Detlef Krummel (GEI) and Tobias Friede (Fraunhofer)
+
+
+;============================================================================================================
+; Variables
+DefVar $UninstallProgram$ 
+DefVar $UninstallLinkfolder$ 
+DefVar $UninstallToken$
+DefStringList $UninstTempList$
+DefStringList $UninstallInfos$
+
+Set $UninstallInfos$ = addtolist($UninstallInfos$, "MAXQDA 10=MAXQDA10")
+Set $UninstallInfos$ = addtolist($UninstallInfos$, "MAXQDA 11=MAXQDA11")
+
+;==========================================================================================================
+; Program logic
+
+; Removing older versions
+comment "Remove old versions set - thus starting to search for it..."
+Message "Searching for previous installed MAXQDA versions, please wait..."
+for %act% in $UninstallInfos$ do sub_remove_nsis_versions
+
+;==========================================================================================================
+; Functions
+
+[sub_remove_nsis_versions]
+Set $UninstTempList$ = splitString("%act%","=")
+Set $UninstallLinkfolder$  = takeString(0,$UninstTempList$)
+Set $UninstallToken$ = takeString(1,$UninstTempList$)
+Set $UninstallProgram$ = "%ProgramFiles32Dir%\"+$UninstallToken$+"\uninst.exe"
+if (FileExists($UninstallProgram$))
+	Message "Uninstalling previous " + $UninstallLinkfolder$ + "..."
+	comment "Uninstalling previous " + $UninstallLinkfolder$ + "..."
+	Killtask $UninstallToken$+".exe"
+	Winbatch_uninstall_nsis /WaitforProcessending "Au_.exe" /Timeoutseconds 10
+	Set $DesktopIconName$ = $UninstallLinkfolder$
+	LinkFolder_delete
+endif
+
+[Winbatch_uninstall_nsis]
+"$UninstallProgram$" /S
+
