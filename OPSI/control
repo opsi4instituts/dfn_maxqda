@@ -9,7 +9,7 @@ id: dfn_maxqda
 name: MAXQDA
 description: MAXQDA is a software program designed for computer-assisted qualitative and mixed methods data, text and multimedia analysis in academic, scientific, and business institutions.
 advice: The installation process closes any open instances of the program. If an installation was activated with a serial number, please deactivate the license in the programm before deinstalling it. The license won't be deactivated with the uninstallation and you'd have to contact MAXQDA support for retrieving it.
-version: 12.2.1
+version: 12.3.0
 priority: 0
 licenseRequired: True
 productClasses: 
