@@ -14,7 +14,7 @@ PROPERTIES
 * custom-post-deinstall: Define filename for include script in custom directory after deinstallation.
 * remove-old-versions: Remove earlier installed versions of MAXQDA on this machine. Caution, this might remove a licensed older version and in order to retrieve the licence you have to contact MAXQDA support.
 * kind-of-license: Defines the kind of license: "opsi-property" takes the license name from the property "licensename", "licensepool" uses the license name delivered by the license module of OPSI. The delivering license pool can be specified in the property "licensepoolname". "ini-file-in-custom-folder" uses the Config.ini file placed in the custom folder of the package and "testversion" installs MAXQDA as test version.
-* licensename: The license name for your MAXQDA installation. Only needed if the property "kind-of-license" is set to "licensename".
+* licensename: The license name for your MAXQDA installation. Only needed if the property "kind-of-license" is set to "opsi-property".
 * licensepoolname: The license pool name for OPSI license module. Only needed if the property "kind-of-license" is set to "licensepool".
 * licenseserver: The fqdn or the IP of the license server or the IP of it. Only needed if the property "kind-of-license" is set to "opsi-property" or "licensepool".
 
