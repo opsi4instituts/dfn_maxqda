@@ -43,7 +43,7 @@ DefVar $remove_old_versions$
 ; Setting common variables
 
 Set $ProductId$     			= "dfn_maxqda"
-Set $MinimumSpace$  			= "750 MB"
+Set $MinimumSpace$  			= "1200 MB"
 Set $PrettyName$					= "MAXQDA 12"
 Set $VersionIdentifier$		= "MAXQDA12"
 Set $InstallDir$    			= "%ProgramFiles32Dir%\" + $VersionIdentifier$

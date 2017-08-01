@@ -3,7 +3,7 @@ Contact, questions and suggestions: eric.esser@wzb.eu / opsi@wzb.eu
 
 HOWTO
 -----
-1. Install the package on the OPSI server on the command line by "opsi-package-manager -i -p ask dfn_maxqda_<Versions-/Paketnummer>.opsi".
+1. Install the package on the OPSI server on the command line by "opsi-package-manager -i -p ask dfn_maxqda_<version/packagenumber>.opsi".
 2. After the installation copy your Config.ini file with the licence information in the "custom" directory in the project folder of the product on the OPSI server and set the property kind-of-license to ini-file-in-custom-folder. Alternatively, set the property kind-of-license to opsi-property and enter the license name and the server name in the properties of the configed of OPSI. You can also hold the license name in a license pool of OPSI, but you still need to provide the server name in the opsi property.
 
 
