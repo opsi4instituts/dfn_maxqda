@@ -9,7 +9,7 @@ id: dfn_maxqda
 name: MAXQDA
 description: MAXQDA is a software program designed for computer-assisted qualitative and mixed methods data, text and multimedia analysis in academic, scientific, and business institutions.
 advice: The installation process closes any open instances of the program. If an installation was activated with a serial number, please deactivate the license in the programm before deinstalling it. The license won't be deactivated with the uninstallation and you'd have to contact MAXQDA support for retrieving it.
-version: 12.3.2
+version: 18.1.1
 priority: 0
 licenseRequired: True
 productClasses: 
@@ -85,9 +85,21 @@ default: [""]
 type: bool
 name: remove-old-versions
 description: Remove earlier installed versions of Endnote on this machine.
-default: False
+default: True
 
 [Changelog]
+dfn_maxqda (18.1.1-1) stable; urgency=low
+
+Update auf 18.0.1., msi getauscht.
+
+ -- Eric Esser <eric.esser@wzb.eu>  Tue, 11 Dec 2018 18:34:43 +0000
+
+dfn_maxqda (18.1.0-1) stable; urgency=low
+
+Update auf 18.0.1., msi getauscht.
+
+ -- Eric Esser <eric.esser@wzb.eu>  Tue, 04 Dec 2018 18:46:34 +0000
+
 maxqda (12.0.3-1) testing; urgency=low
 
   * Initial package

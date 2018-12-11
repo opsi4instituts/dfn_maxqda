@@ -37,20 +37,21 @@ DefVar $ProgramVersion$
 DefVar $Exe$	
 DefVar $PathToExe$
 DefVar $remove_old_versions$
+DefStringList $TaskNames$
 
 ;----------------------------------------------------------------------------------------------
 ; USUALLY FOR AN PROGRAM UPDATE THIS IS THE ONLY PLACE WHERE VALUES OUGHT TO BE CHANGED, EXCEPT PUTTING THE OLD MSI-ID TO DELSUB
 ; Setting common variables
 
 Set $ProductId$     			= "dfn_maxqda"
-Set $MinimumSpace$  			= "1200 MB"
-Set $PrettyName$					= "MAXQDA 12"
-Set $VersionIdentifier$		= "MAXQDA12"
+Set $MinimumSpace$  			= "1400 MB"
+Set $PrettyName$					= "MAXQDA 2018"
+Set $VersionIdentifier$		= "MAXQDA2018"
 Set $InstallDir$    			= "%ProgramFiles32Dir%\" + $VersionIdentifier$
 Set $Exe$									= $VersionIdentifier$ + ".exe"
 Set $SetupFile$						= $VersionIdentifier$ + "_Setup.msi"		
 Set $PathToExe$						= $InstallDir$ + "\" + $Exe$
-Set $remove_old_versions$ = GetProductProperty("remove-old-versions", "false")
+Set $remove_old_versions$ = GetProductProperty("remove-old-versions", "true")
 
 ; There are two more variables to set which are not here, but in setup.opsiscript ($SetupFile$) and uninstall.opsiscript ($UninstallSearchString$)
 ;----------------------------------------------------------------------------------------------
@@ -66,7 +67,8 @@ Set $Property_DesktopIcon$ = GetProductProperty("desktopicon", "true")
 comment "Show product picture"
 ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$
 
-; Kill running task
+; Kill running tasks
+Killtask "MAXQDA12.exe"
 Killtask $Exe$
 
 Set $KindOfLicense$ = GetProductProperty("kind-of-license" , "testversion" )
