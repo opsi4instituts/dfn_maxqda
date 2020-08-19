@@ -6,17 +6,21 @@
 ; Variables 
 DefVar $DisplayName$
 DefVar $RegPath$
+;DefVar $RegPath32$
+;DefVar $RegPath64$
+DefVar $RegPathType$ 
 DefVar $RegString$
 DefVar $UninstallString$
 DefVar $FinalUninstallString$
-DefVar $UninstallLog$ 
 DefVar $InstallationSystemType$
 DefVar $DoubleFlag$
+DefVar $ErrorMsg$
 DefStringList $UninstallKeys$
 DefStringList $UninstallStrings$
 
-Set $RegPath$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
-
+Set $RegPath$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+;Set $RegPath32$ = "HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+;Set $RegPath64$ = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 ;==========================================================================================================
 ; Includes
 include_append "section_uninstall_by_registry.opsiinc"

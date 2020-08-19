@@ -5,33 +5,35 @@
 [Actions]
 ;==========================================================================================================
 ; Includes
-include_insert "insert_uninstall_by_registry.opsiinc"
 include_insert "common.opsiinc"
 
 ;==========================================================================================================
 ; Variables
 DefVar $CustomPostDeinstall$
-DefVar $UninstallSearchString$
-Set $UninstallSearchString$ = $PrettyName$
-
 ;==========================================================================================================
 ; Program logic
 
 Message "Uninstalling " + $ProductId$ + " ..."
 
-; Sub function in section_uninstall_by_registry.opsiinc - variable set in commons.opsiinc
-comment "Starting sub_uninstall_by_registry"
-sub_uninstall_by_registry
-
-if ($remove_old_versions$ = "true")
-  Sub "%ScriptPath%\delsub.opsiscript"
-endif
+Sub "%ScriptPath%\delsub.opsiscript"
 
 ; Free license if licensing module of OPSI is used
 if (GetProductProperty("kind-of-license" , "testversion" ) = "licensepool")
-  Comment "Licensing required, free license used"
 	Sub_free_license  
+  Comment "License freed."
 endif
+
+; Delete license files
+if (FileExists($IniFile$))
+  Comment "Deleting ini license file"
+	Files_del_ini_file 
+endif
+
+if (FileExists($VlicFile$))
+  Comment "Deleting vlic license file"
+	Files_del_vlic_file 
+endif
+
 
 ; Make sure the desktop icon gets deleted as well.
 Set $DesktopIconName$ = $PrettyName$
@@ -46,3 +48,8 @@ if not ($CustomPostDeinstall$ = "none")
 	endif
 endif
 
+[Files_del_ini_file]
+del -f $IniFile$
+
+[Files_del_vlic_file]
+del -f $VlicFile$

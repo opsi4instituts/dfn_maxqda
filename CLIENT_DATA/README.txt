@@ -1,10 +1,11 @@
-The initial version of this package was created by Eric Esser, Wissenschaftszentrum Berlin für Sozialforschung (Berlin Social Science Center) and published at the DFN-Repository of the initiative OPSI4instituts: https://opsi.wzb.eu
-Contact, questions and suggestions: eric.esser@wzb.eu / opsi@wzb.eu
+The initial version of this package was created by Eric Esser, Wissenschaftszentrum Berlin für Sozialforschung (Berlin Social Science Center) with the help of magical opsi unicorns. It was published at the DFN-Repository of the initiative OPSI4instituts: https://o4i.org
+
+Contact, questions, suggestions and tomatoes: eric.esser@wzb.eu / opsi@wzb.eu
 
 HOWTO
 -----
 1. Install the package on the OPSI server on the command line by "opsi-package-manager -i -p ask dfn_maxqda_<version/packagenumber>.opsi".
-2. After the installation copy your Config.ini file with the licence information in the "custom" directory in the project folder of the product on the OPSI server and set the property kind-of-license to ini-file-in-custom-folder. Alternatively, set the property kind-of-license to opsi-property and enter the license name and the server name in the properties of the configed of OPSI. You can also hold the license name in a license pool of OPSI, but you still need to provide the server name in the opsi property.
+2. If you chose to license by ini file copy your configuration file for clients (Config.ini) with the licence information in the "custom" directory in the project folder of the product on the OPSI server and set the property kind-of-license to ini-file-in-custom-folder. Alternatively, set the property kind-of-license to opsi-property and enter the license name and the server name in the properties of the configed of OPSI. You can also hold the license name in a license pool of OPSI, but you still need to provide the server name in the opsi property. 
 
 
 PROPERTIES

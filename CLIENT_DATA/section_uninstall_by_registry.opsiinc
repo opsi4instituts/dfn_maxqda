@@ -7,36 +7,64 @@
 
 ; Main function which searches the uninstall path in the registry and then uses it for uninstalling the program. $UninstallSearchString$ has to be set outside this opsiinc file
 [sub_uninstall_by_registry]
-Set $UninstallLog$ = $LogDir$ + "\" + $ProductId$ + ".uninstall_log.txt"
+comment "Traversing 32-bit tree of the registry"
+;Set $RegPath$ = $RegPath32$
+Set $RegPathType$ = "x86"
 Set $UninstallKeys$ = getRegistryKeyList32($RegPath$)
 for %uninstallkey% in $UninstallKeys$ do sub_check_uninstall_key
 
 Set $InstallationSystemType$ = GetSystemType
 if ($InstallationSystemType$ = "64 Bit System")
+   comment "Traversing 64-bit tree of the registry"
+   ;Set $RegPath$ = $RegPath64$
+   Set $RegPathType$ = "x64"
    Set $UninstallKeys$ = getRegistryKeyList64($RegPath$) 
    for %uninstallkey% in $UninstallKeys$ do sub_check_uninstall_key
 endif
 
 if (count($UninstallStrings$) = "0")
-  LogError "No uninstall string found in registry. Please try manual deinstallation on this machine"
-  isFatalError "No uninstall string found in registry."
+  LogWarning "No uninstall string found in registry. Please check."
+  ;isFatalError "No uninstall string found in registry."
+else
+  for %uninstallstring% in $UninstallStrings$ do sub_uninstall_msi
 endif
-
-for %uninstallstring% in $UninstallStrings$ do sub_uninstall_msi
 
 
 ; Checks if the string to be searched for is in the uninstall path of the registry. Fills all found refering uninstall keys in the array $UninstallStrings$
 [sub_check_uninstall_key]
 Set $RegString$ = "[" + $RegPath$ + "\%uninstallkey%\] "
-Set $DisplayName$ = GetRegistryStringValue($RegString$ + "DisplayName")
+if ($RegPathType$ = "x64")
+   Set $DisplayName$ = getregistrystringvalue64($RegString$ + "DisplayName")
+else
+   Set $DisplayName$ = getregistrystringvalue32($RegString$ + "DisplayName")
+endif
+;Comment "Key: %uninstallkey%    ||    Display name: " + $DisplayName$
 if (not($DisplayName$ = ""))
-  if ($DisplayName$ = $UninstallSearchString$)
-    Set $UninstallString$ = GetRegistryStringValue($RegString$ + "UninstallString")
+  if ( contains($DisplayName$, $UninstallExceptionString$))
+    Comment "Exception string found in registry: " + $DisplayName$
+  endif
+  if ( contains($DisplayName$, $UninstallSearchString$))
+    Comment "Uninstall search string found in registry: " + $DisplayName$
+  endif
+  if ( contains($DisplayName$, $UninstallSearchString$) AND not(contains($DisplayName$, $UninstallExceptionString$))) 
+    Comment "Uninstall key found in registry: " + $DisplayName$
+    if ($RegPathType$ = "x64")
+      Set $UninstallString$ = getregistrystringvalue64($RegString$ + "UninstallString")
+    else
+      Set $UninstallString$ = getregistrystringvalue32($RegString$ + "UninstallString")
+    endif
     if ($UninstallString$ = "")
       LogWarning "Registry value found, but no uninstall string - continuing to search..."
     else
+      if (( contains($UninstallString$, "/I")) or ( contains($UninstallString$, "/i")))
+        Comment "Sanitizing Uninstall string: " + $UninstallString$
+        Set $UninstallString$ = stringReplace($UninstallString$, "/I", "/X")
+        Comment "Uninstall string sanitized: " + $UninstallString$
+      endif 
       Set $DoubleFlag$ = "false"
-      for %uninstallstring% in $UninstallStrings$ do sub_check_doubles
+      if not(count($UninstallStrings$) = "0")
+        for %uninstallstring% in $UninstallStrings$ do sub_check_doubles
+      endif
       if ($DoubleFlag$ = "false")
         Set $UninstallStrings$ = addtolist($UninstallStrings$, $UninstallString$)
       endif
@@ -47,6 +75,8 @@ endif
 
 ; Prepares the uninstall string to be compatible with OPSI
 [sub_uninstall_msi]
+comment "Uninstalling " + "%uninstallstring%"
+Message "Uninstalling (old) version of " + $ProductId$ + " ..."
 ;MsiExec.exe /X{251659B0-5D87-41EC-B00B-D414E3713375}
 Set $FinalUninstallString$ = stringReplace("%uninstallstring%", "MsiExec.exe", "msiexec")
 Set $FinalUninstallString$ = stringReplace("%uninstallstring%", "/I", "/x")

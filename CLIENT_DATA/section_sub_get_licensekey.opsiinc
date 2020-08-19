@@ -6,6 +6,7 @@ if opsiLicenseManagementEnabled
 
 	comment "Trying to get a license key"
 	Set $LicenseKey$ = demandLicenseKey ($LicensePool$)
+
 	; If there is an assignment of exactly one licensepool to the product the following call is possible:
 	; Set $LicenseKey$ = demandLicenseKey ("", $ProductId$)
 	;
@@ -36,4 +37,17 @@ else
 	LogError "Fatal: license required, but license management not enabled"
 	isFatalError "No Licensemanagement"
 endif
+
+[Sub_free_license]
+comment "License management is enabled and will be used"
+
+comment "Trying to free license used for the product"
+Set $free_license_result$ = FreeLicense($LicensePool$)
+; If there is an assignment of a license pool to the product, it is possible to use
+; Set $result$ = FreeLicense("", $ProductId$)
+;
+; If there is an assignment of a license pool to a windows software id, it is possible to use
+; DefVar $WindowsSoftwareId$
+; $WindowsSoftwareId$ = "..."
+; set $result$ = FreeLicense("", "", $WindowsSoftwareId$)
 

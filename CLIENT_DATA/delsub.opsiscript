@@ -2,25 +2,50 @@
 ; Written by Eric Esser, Wissenschaftszentrum Berlin, eric.esser@wzb.eu.
 ; Inspired by uib gmbh (www.uib.de), Thomas Besser (KIT), Detlef Krummel (GEI) and Tobias Friede (Fraunhofer)
 
-
 ;============================================================================================================
 ; Variables
 DefVar $UninstallProgram$ 
 DefVar $UninstallLinkfolder$ 
 DefVar $UninstallToken$
+DefVar $UninstallSearchString$
+DefVar $UninstallExceptionString$
+DefVar $UninstallRegKey$
+DefVar $RegistryUninstallString$
 DefStringList $UninstTempList$
 DefStringList $UninstallInfos$
 
+; NSIS installver versions until MAXQDA11, then MSI. 
+Set $UninstallSearchString$ = "MAXQDA"
 Set $UninstallInfos$ = addtolist($UninstallInfos$, "MAXQDA 10=MAXQDA10")
 Set $UninstallInfos$ = addtolist($UninstallInfos$, "MAXQDA 11=MAXQDA11")
-
+Set $UninstallExceptionString$ = "Reader"
 ;==========================================================================================================
 ; Program logic
 
+
+
 ; Removing older versions
-comment "Remove old versions set - thus starting to search for it..."
-Message "Searching for previous installed MAXQDA versions, please wait..."
-for %act% in $UninstallInfos$ do sub_remove_nsis_versions
+if ($remove_old_versions$ = "true")
+  comment "Remove old versions set - thus starting to search for it..."
+  Message "Searching for previous installed MAXQDA versions, please wait..."
+  for %act% in $UninstallInfos$ do sub_remove_nsis_versions
+
+  ; Sub function in section_uninstall_by_registry.opsiinc - variable set in commons.opsiinc
+  comment "Starting sub_uninstall_by_registry"
+  sub_uninstall_by_registry
+else
+  ; remove only current version 
+  comment "Remove old versions not set - just looking for " + $PrettyName$
+  Set $UninstallRegKey$ = "[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\" + $MsiId$ + "\] UninstallString"
+  Set $RegistryUninstallString$ = getregistrystringvalue64($UninstallRegKey$)
+  if (not($RegistryUninstallString$ = ""))
+    comment "Uninstall registry key found - uninstalling current version"
+    message "Uninstalling " +  $PrettyName$ + "..."
+    Winbatch_uninstall_current_version
+  else
+    LogWarning "Uninstall registry key of current version not found. No uninstall before installation."
+  endif
+endif 
 
 ;==========================================================================================================
 ; Functions
@@ -42,3 +67,6 @@ endif
 [Winbatch_uninstall_nsis]
 "$UninstallProgram$" /S
 
+[Winbatch_uninstall_current_version]
+; Does the actual uninstallation
+msiexec /x $MsiId$ /l*v $UninstallLog$ /qn REBOOT=ReallySuppress

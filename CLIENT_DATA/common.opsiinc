@@ -2,7 +2,7 @@
 ; Written by Eric Esser, Wissenschaftszentrum Berlin, eric.esser@wzb.eu.
 ; Inspired by uib gmbh (www.uib.de), Thomas Besser (KIT), Detlef Krummel (GEI) and Tobias Friede (Fraunhofer)
 
-setloglevel = 6
+setloglevel = 7
 ;  Log Errors in Logfile but don't abort:
 ExitOnError=false
 ; Show syntax errors in the script:
@@ -18,6 +18,7 @@ requiredWinstVersion >= "4.11.5.0"
 ; Includes
 include_insert "insert_check_exit_code.opsiinc"
 include_insert "insert_get_licensekey.opsiinc"
+include_insert "insert_uninstall_by_registry.opsiinc"
 include_append "section_linkfolder.opsiinc"
 
 ;==========================================================================================================
@@ -37,6 +38,11 @@ DefVar $ProgramVersion$
 DefVar $Exe$	
 DefVar $PathToExe$
 DefVar $remove_old_versions$
+DefVar $MsiId$
+DefVar $UninstallLog$
+DefVar $IniFile$
+DefVar $VlicFile$ 	
+DefVar $free_license_result$
 DefStringList $TaskNames$
 
 ;----------------------------------------------------------------------------------------------
@@ -45,20 +51,26 @@ DefStringList $TaskNames$
 
 Set $ProductId$     			= "dfn_maxqda"
 Set $MinimumSpace$  			= "1400 MB"
-Set $PrettyName$					= "MAXQDA 2018"
-Set $VersionIdentifier$		= "MAXQDA2018"
+Set $PrettyName$					= "MAXQDA 2020"
+Set $VersionIdentifier$		= "MAXQDA2020"
 Set $InstallDir$    			= "%ProgramFiles32Dir%\" + $VersionIdentifier$
 Set $Exe$									= $VersionIdentifier$ + ".exe"
 Set $SetupFile$						= $VersionIdentifier$ + "_Setup.msi"		
 Set $PathToExe$						= $InstallDir$ + "\" + $Exe$
 Set $remove_old_versions$ = GetProductProperty("remove-old-versions", "true")
+Set $IniFile$ 						= "%CommonAppDataDir%\" + $VersionIdentifier$ + "\Config.ini"
+Set $VlicFile$ 						= "%CommonAppDataDir%\" + $VersionIdentifier$ + "\" + $VersionIdentifier$ + ".vlic"
+
+Set $MsiId$								= "{2A87EA14-BA29-429C-A5CE-523D0C0E8BB3}"
+;MaxQDA 2018: "{9783726C-1EA7-45DE-9D7D-8A0862AAB836}"
 
 ; There are two more variables to set which are not here, but in setup.opsiscript ($SetupFile$) and uninstall.opsiscript ($UninstallSearchString$)
 ;----------------------------------------------------------------------------------------------
 ; Further common values. After an update, these should stay as they are.
 
 Set $ProgramVersion$       = strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
-Set $LogDir$               = "%SystemDrive%\tmp"
+Set $LogDir$               = "%opsiLogDir%" 
+Set $UninstallLog$        = $LogDir$ + "/" + $ProductId$ + ".uninstall_log.txt"
 Set $Property_DesktopIcon$ = GetProductProperty("desktopicon", "true")
 
 ;==========================================================================================================
@@ -69,6 +81,7 @@ ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$
 
 ; Kill running tasks
 Killtask "MAXQDA12.exe"
+Killtask "MAXQDA2018.exe"
 Killtask $Exe$
 
 Set $KindOfLicense$ = GetProductProperty("kind-of-license" , "testversion" )
@@ -88,7 +101,10 @@ Switch $KindOfLicense$
         if ($LicensePool$ = "") 
           LogError "No license pool found in OPSI, though kind-of-license property set to opsi-property. Please enter valid license pool name in OPSI or change the kind of licensing."
           isFatalError "No license pool found in OPSI, though kind-of-license property set to opsi-property"
-        endif                            
+        endif       
+        ;release old license with probably old license keys
+        Sub_free_license                       
+        ;get a fresh one
         Sub_get_licensekey 
     EndCase
 EndSwitch

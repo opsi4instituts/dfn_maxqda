@@ -14,10 +14,9 @@ DefVar $CustomPostInstall$
 DefVar $SetupString$ 
 DefVar $SetupParams$
 DefVar $LicenseServer$
-DefVar $IniFile$
 
 Set $SetupString$ = "%ScriptPath%\" + $SetupFile$ 
-Set $IniFile$ = "%CommonAppDataDir%\" + $VersionIdentifier$ + "\Config.ini"
+
 
 ;==========================================================================================================
 ; Program logic
@@ -27,18 +26,29 @@ if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
 	; Stop process and set installation status to failed
 else
 	ChangeDirectory "%SCRIPTPATH%"
-
-  if ($remove_old_versions$ = "true")
-    Sub "%ScriptPath%\delsub.opsiscript"
-  endif
-
-	if (($KindOfLicense$ = "opsi-property") or ($KindOfLicense$ = "licensepool"))
+  
+  ;uninstall old version
+  Sub "%ScriptPath%\delsub.opsiscript"    
+  
+	if ($KindOfLicense$ = "opsi-property")
 	  Set $LicenseServer$ = GetProductProperty("licenseserver", "")
 	  if (not($LicenseServer$ = ""))
 	    Set $SetupParams$ = "LIC_SRV=" + $LicenseServer$ + " LIC_NAME=" + $LicenseKey$
+	    comment "Licensing with opsi-property"
 	  else 
-			LogError "No license server found in OPSI, though kind-of-license property set to opsi-property. Please enter valid license server in OPSI or change the kind of licensing."
+			LogError "No license server found in OPSI, though kind-of-license property set to opsi-property. Please enter valid license server in the OPSI property or change the kind of licensing."
       isFatalError "No license server found in OPSI, though kind-of-license property set to opsi-property"
+	  endif
+	endif
+	
+	if ($KindOfLicense$ = "licensepool")
+	  Set $LicenseServer$ = GetProductProperty("licenseserver", "")
+	  if (not($LicenseServer$ = ""))
+	    Set $SetupParams$ = "LIC_SRV=" + $LicenseServer$ + " LIC_NAME=" + $LicenseKey$
+	    comment "Licensing with opsi licensepool"
+	  else 
+			LogError "No license server found in OPSI, though kind-of-license property set to licensepool. Please enter valid license pool in the OPSI property and a valid license in the license module or change the kind of licensing."
+      isFatalError "No license server found in OPSI, though kind-of-license property set to licensepool"
 	  endif
 	endif
 		
@@ -61,6 +71,7 @@ else
       LogError "%CommonAppDataDir%\"+ $VersionIdentifier$ + " folder not found"
 	    isFatalError "%CommonAppDataDir%\"+ $VersionIdentifier$ + " folder not found"
 	  endif	
+  	comment "Copying license file to %CommonAppDataDir%\" + $VersionIdentifier$
 	  Files_copy_license
 	endif
 
@@ -91,11 +102,3 @@ msiexec /i "$SetupString$" /qn $SetupParams$ /l* "$LogDir$\$ProductId$.install_l
 
 [Files_copy_license]
 copy "%ScriptPath%\custom\Config.ini" "%CommonAppDataDir%\$VersionIdentifier$"
-
-[Patches_delete_inifile_license]
-delsec [License]
-
-[Patches_add_license_to_inifile]
-set [License] LicNet = 1
-set [License] LicSrv = $LicenseServer$
-set [License] LicName = $LicenseKey$
